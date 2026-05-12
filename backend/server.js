@@ -15,6 +15,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const merchantRoutes = require('./routes/merchantRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,10 +27,14 @@ app.use(cors({
   credentials: true,
 }));
 
-// Rate limiting
+// Rate limiting (env-tunable; relaxed in development)
+const isDev = process.env.NODE_ENV === 'development';
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: parseInt(process.env.RATE_LIMIT_MAX || (isDev ? '5000' : '100'), 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.RATE_LIMIT_DISABLED === 'true',
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 app.use('/api/', limiter);
@@ -37,7 +42,10 @@ app.use('/api/', limiter);
 // Auth-specific stricter rate limit
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: parseInt(process.env.AUTH_RATE_LIMIT_MAX || (isDev ? '500' : '20'), 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.RATE_LIMIT_DISABLED === 'true',
   message: { success: false, message: 'Too many auth attempts.' },
 });
 
@@ -64,6 +72,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/merchant', merchantRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // 404 handler
 app.use((req, res) => {

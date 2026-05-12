@@ -26,15 +26,18 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-brand">🛒 ShopHub</Link>
+        <Link to="/" className="navbar-brand">
+          <span className="navbar-brand-mark">🛍</span>
+          <span className="navbar-brand-name">ShopHub</span>
+        </Link>
 
         <div className="navbar-links">
-          <Link to="/">Products</Link>
+          <Link to="/">Shop</Link>
 
           {user ? (
             <>
-              <Link to="/cart">
-                Cart
+              <Link to="/cart" className="cart-link">
+                <span>Cart</span>
                 {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
               </Link>
               <Link to="/orders">Orders</Link>
@@ -53,8 +56,8 @@ const Navbar = () => {
                 </Link>
               )}
 
-              <Link to="/profile">{user.first_name}</Link>
-              <button onClick={handleLogout}>Logout</button>
+              <Link to="/profile">Hi, {user.first_name}</Link>
+              <button onClick={handleLogout} className="btn btn-outline btn-sm">Logout</button>
             </>
           ) : (
             <>

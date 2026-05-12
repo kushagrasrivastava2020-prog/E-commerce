@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 // Layout
@@ -31,6 +32,7 @@ function NotFound() {
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Layout>
           <Routes>
@@ -73,6 +75,7 @@ function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }

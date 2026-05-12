@@ -1,8 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import ProductCard from './ProductCard';
-import Loading from '../Common/Loading';
 import Alert from '../Common/Alert';
+
+const SkeletonGrid = ({ count = 8 }) => (
+  <div className="product-grid">
+    {Array.from({ length: count }).map((_, i) => (
+      <div key={i} className="skeleton-card">
+        <div className="skeleton skeleton-image" />
+        <div className="skeleton-body">
+          <div className="skeleton skeleton-line short" />
+          <div className="skeleton skeleton-line" />
+          <div className="skeleton skeleton-line mid" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -97,7 +111,7 @@ const ProductList = () => {
       </div>
 
       {loading ? (
-        <Loading />
+        <SkeletonGrid count={8} />
       ) : products.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">📦</div>

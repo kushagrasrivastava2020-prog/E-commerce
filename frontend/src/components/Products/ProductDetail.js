@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { recApi } from '../../api/recommendations';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../Common/Loading';
 import Alert from '../Common/Alert';
+import SimilarProducts from '../Recommendations/SimilarProducts';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -25,6 +27,7 @@ const ProductDetail = () => {
         const response = await api.get(`/products/${id}`);
         setProduct(response.data.data);
         setReviews(response.data.data.recent_reviews || []);
+        recApi.trackEvent('view', parseInt(id, 10));
       } catch (err) {
         setError('Product not found');
       } finally {
@@ -43,6 +46,7 @@ const ProductDetail = () => {
     setAddingToCart(true);
     try {
       await api.post('/cart/items', { product_id: parseInt(id), quantity });
+      recApi.trackEvent('add_to_cart', parseInt(id, 10), { quantity });
       setSuccess('Added to cart!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -141,6 +145,11 @@ const ProductDetail = () => {
             </>
           )}
         </div>
+      </div>
+
+      {/* Similar products */}
+      <div style={{ marginTop: '2rem' }}>
+        <SimilarProducts productId={parseInt(id, 10)} />
       </div>
 
       {/* Reviews Section */}
