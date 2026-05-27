@@ -1,15 +1,26 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const useConnectionString = !!process.env.DATABASE_URL;
+const wantsSsl =
+  useConnectionString ||
+  process.env.PGSSL === 'true' ||
+  process.env.NODE_ENV === 'production';
+
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'ecommerce_db',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  ...(useConnectionString
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        database: process.env.DB_NAME || 'ecommerce_db',
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'postgres',
+      }),
+  ssl: wantsSsl ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('connect', () => {

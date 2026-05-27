@@ -1,0 +1,58 @@
+# Render Blueprint for ShopHub (https://render.com/docs/blueprint-spec)
+#
+# If a service name is already taken globally, rename it here AND update the
+# matching FRONTEND_URL / REACT_APP_API_URL values below to match the new URL.
+
+databases:
+  - name: shophub-db
+    plan: free
+    databaseName: ecommerce_db
+    user: ecommerce
+
+services:
+  - type: web
+    name: shophub-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: shophub-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        value: https://shophub-web.onrender.com
+      - key: LLM_PROVIDER
+        value: none
+      - key: RAZORPAY_KEY_ID
+        value: rzp_test_placeholder
+      - key: RAZORPAY_KEY_SECRET
+        value: placeholder_secret
+
+  - type: web
+    name: shophub-web
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://shophub-api.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
